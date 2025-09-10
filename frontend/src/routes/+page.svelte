@@ -19,7 +19,6 @@
             deadline: data.deadline,
             completed: data.completed
         };
-        console.log(editor);
     }
 </script>
 

@@ -8,8 +8,8 @@
 	export let Deadline: string;
     export let editfunc
     export let display = false
-    let deadlineDate: Date;
-    let deadline: Date = new Date();
+    let deadlineDate: Date | undefined;
+    let deadline: Date | undefined;
     let DeadlineDisplay: string | null;
     function parseDate(dateStr: string) {
         if (Deadline === "" || Deadline === null || Deadline === undefined) {
@@ -30,7 +30,7 @@
 	$: deadlineColor = (() => {
 		const now = new Date();
 		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
+        if (!deadline) return 'text-gray-500';
 		if (isNaN(deadline.getTime())) return 'text-gray-500';
 		if (deadline < today) return 'text-red-500';
 		if (deadline.getTime() === today.getTime()) return 'text-yellow-500';

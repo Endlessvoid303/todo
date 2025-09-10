@@ -13,7 +13,7 @@
     export let title = "";
     export let description = "";
     export let deadline = "";
-    export let datebox = today(getLocalTimeZone());
+    export let datebox: CalendarDate | undefined = undefined;
     export let completed = false;
     export let editfunc
     let userId: string | null = null;
@@ -21,9 +21,9 @@
         const user = await getCurrentUser();
         userId = user.id;
     });
-    let lastdatebox: CalendarDate = datebox;
-    let displaydate: string = datebox.toString();
-    function updateDisplayDate(datebox: CalendarDate) {
+    let lastdatebox: CalendarDate | undefined = datebox;
+    let displaydate: string | undefined = datebox?.toString();
+    function updateDisplayDate(datebox: CalendarDate | undefined) {
         if (datebox !== undefined) {
             displaydate = datebox.toString();
             deadline = new Date(datebox.year, datebox.month - 1, datebox.day+1).toISOString().split('T')[0];
@@ -32,8 +32,8 @@
     }
     $: updateDisplayDate(datebox);
     function parseDate(dateStr: string) {
-        if (dateStr === "") {
-            datebox = today(getLocalTimeZone());
+        if (dateStr === "" || dateStr === null || dateStr === undefined) {
+            datebox = undefined;
             return;
         }
         const deadlineDate = new Date(dateStr);
@@ -62,7 +62,7 @@
         title = "";
         description = "";
         deadline = "";
-        datebox = today(getLocalTimeZone());
+        datebox = undefined;
         completed = false;
     }
     function Update() {
@@ -75,7 +75,7 @@
         id={id}
         Title={title}
         Description={description}
-        Deadline={displaydate}
+        Deadline={deadline}
         Completed={completed}
         editfunc={editfunc}
         display
