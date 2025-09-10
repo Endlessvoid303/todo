@@ -2,16 +2,30 @@
 	import Card from './card/card.svelte';
 	import Button from './button/button.svelte';
 	import Checkbox from './checkbox/checkbox.svelte';
+    export let id: string;
 	export let Title: string;
 	export let Description: string;
 	export let Deadline: string;
-	const deadlineDate = new Date(Deadline);
-	const deadline = new Date(
-		deadlineDate.getFullYear(),
-		deadlineDate.getMonth(),
-		deadlineDate.getDate()
-	);
-	Deadline = deadline.toDateString();
+    export let editfunc
+    export let display = false
+    let deadlineDate: Date;
+    let deadline: Date = new Date();
+    let DeadlineDisplay: string | null;
+    function parseDate(dateStr: string) {
+        if (Deadline === "" || Deadline === null || Deadline === undefined) {
+            DeadlineDisplay = null;
+            return;
+        }
+        deadlineDate = new Date(Deadline);
+	    deadline = new Date(
+            deadlineDate.getFullYear(),
+            deadlineDate.getMonth(),
+            deadlineDate.getDate()
+	    );
+        DeadlineDisplay = deadline.toDateString();
+    }
+	$:parseDate(Deadline);
+	
 	export let Completed: boolean;
 	$: deadlineColor = (() => {
 		const now = new Date();
@@ -31,10 +45,14 @@
 	<div class="col-span-3 flex flex-col justify-center gap-1 p-2">
 		<h2 class="text-xl font-bold">{Title}</h2>
 		<p>{Description}</p>
-		<p class="text-sm {deadlineColor}">Deadline: {Deadline}</p>
+        {#if DeadlineDisplay}
+		<p class="text-sm {deadlineColor}">Deadline: {DeadlineDisplay}</p>
+        {/if}
 	</div>
+    {#if !display}
 	<div class="row-span-2 grid gap-0">
-		<Button variant="outline" class="m-1">Edit</Button>
+		<Button onclick={() => editfunc({ id, title: Title, description: Description, deadline: Deadline, completed: Completed })} variant="outline" class="m-1">Edit</Button>
 		<Button variant="destructive" class="m-1">Delete</Button>
 	</div>
+    {/if}
 </Card>
