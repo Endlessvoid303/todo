@@ -18,6 +18,7 @@ export async function createTodo(todo: TodoTemplate) {
 
 	const data = await res.json();
 	console.log('Created todo:', data);
+	return data;
 }
 
 export async function updateTodo(id: string, todo: Todo) {

@@ -12,13 +12,8 @@
 	import type { TodoTemplate } from "$lib/templates";
 	import type { Todo } from "$lib/payload-types";
 	import { isTodo } from "$lib/type-check";
-    let { editfunc, ItemData }: { editfunc: (data: any) => void, ItemData: TodoTemplate | Todo } = $props();
-    // export let id = "";
-    // export let title = "";
-    // export let description = "";
-    // export let deadline = "";
+    let { editfunc, deletefunc, ItemData = $bindable(), allItems }: { editfunc: (data: any) => void, deletefunc: (id: string) => void, ItemData: TodoTemplate | Todo, allItems: Record<string, Todo> } = $props();
     let datebox: CalendarDate | undefined = $state(undefined);
-    // export let completed = false;
     let userId: string | null = null;
     onMount(async () => {
         const user = await getCurrentUser();
@@ -58,7 +53,9 @@
         console.log("Create");
         createTodo(ItemData).then((res) => {
             console.log(res);
+            allItems[res.doc.id] = res.doc
         });
+
         Reset();
     }
     function Reset() {
@@ -79,14 +76,16 @@
         }
         updateTodo(ItemData.id,ItemData).then((res) => {
             console.log(res);
+            allItems[res.doc.id] = res.doc
         });
         Reset();
     }
 </script>
 <Card class="m-8 flex content-center items-center p-4">
     <TodoItem
-        ItemData={ItemData}
-        editfunc={editfunc}
+        bind:ItemData={ItemData}
+        editfunc={() => {}}
+        deletefunc={() => {}}
     />
     <Input bind:value={ItemData.title} placeholder="Title" class="m-2" />
     <div class="grid grid-cols-2 gap-8">

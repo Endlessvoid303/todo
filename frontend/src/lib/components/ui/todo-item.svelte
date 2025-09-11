@@ -6,7 +6,7 @@
 	import type { TodoTemplate } from '$lib/templates';
 	import { isTodo } from '$lib/type-check';
 	import { deleteTodo } from '$lib/api/todo';
-	let { ItemData, editfunc }: { ItemData: Todo | TodoTemplate, editfunc: (data: Todo) => void | undefined} = $props();
+	let { ItemData = $bindable(), editfunc, deletefunc }: { ItemData: Todo | TodoTemplate, editfunc: (data: Todo) => void | undefined, deletefunc: (id: string) => void | undefined } = $props();
     let deadlineDate: Date | undefined;
     let DeadlineDisplay: string | null = $state(null);
 	let deadlineColor = $state();
@@ -42,19 +42,6 @@
 		return 'text-green-600';
 	}
 
-	function deleteitem() {
-		if (!isTodo(ItemData)) {
-			console.error("ItemData is not a Todo");
-			return;
-		}
-		deleteTodo(ItemData.id).then((res) => {
-			console.log(res);
-			// Optionally, you can add logic to remove the item from the UI
-		}).catch((err) => {
-			console.error(err);
-		});
-	}
-	
 </script>
 
 <Card class="m-4 grid aspect-5/1 w-140 grid-cols-5 grid-rows-1 gap-0 p-2">
@@ -73,7 +60,7 @@
 		{#if editfunc}
 		<Button onclick={() => editfunc(ItemData)} variant="outline" class="m-1">Edit</Button>
 		{/if}
-		<Button onclick={() => deleteitem()} variant="destructive" class="m-1">Delete</Button>
+		<Button onclick={() => deletefunc(ItemData.id)} variant="destructive" class="m-1">Delete</Button>
 	</div>
 	{/if}
 </Card>
