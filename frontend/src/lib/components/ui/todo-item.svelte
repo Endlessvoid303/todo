@@ -6,6 +6,7 @@
 	import type { TodoTemplate } from '$lib/templates';
 	import { isTodo } from '$lib/type-check';
 	import { deleteTodo } from '$lib/api/todo';
+	import { fade } from 'svelte/transition';
 	let { ItemData = $bindable(), editfunc, deletefunc }: { ItemData: Todo | TodoTemplate, editfunc: (data: Todo) => void | undefined, deletefunc: (id: string) => void | undefined } = $props();
     let deadlineDate: Date | undefined;
     let DeadlineDisplay: string | null = $state(null);
@@ -43,7 +44,7 @@
 	}
 
 </script>
-
+<div transition:fade|global>
 <Card class="m-4 grid aspect-5/1 w-140 grid-cols-5 grid-rows-1 gap-0 p-2">
 	<div id="checkbox" class="flex h-full items-center justify-center">
 		<Checkbox bind:checked={ItemData.completed} class="h-15 w-15 rounded-full" />
@@ -64,3 +65,4 @@
 	</div>
 	{/if}
 </Card>
+</div>
