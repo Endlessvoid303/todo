@@ -1,24 +1,20 @@
 <script lang="ts">
     import TodoContainer from "$lib/components/ui/todo-container.svelte";
 	import TodoCreator from "$lib/components/ui/todo-creator.svelte";
-    export let data;
-    let editor = {
-        id: "",
+	import type { Todo } from "$lib/payload-types.js";
+	import type { TodoTemplate } from "$lib/templates.js";
+    let { data } = $props();
+    let editor : TodoTemplate | Todo = $state({
         title: "",
         description: "",
-        deadline: "",
-        completed: false
-    }
+        deadline: undefined,
+        completed: false,
+        user: '68c12866666d22a2b5d57424'
+    });
     function Edit(
-        data: { id: string; title: string; description: string; deadline: string; completed: boolean }
+        data: Todo
     ) {
-        editor = {
-            id: data.id,
-            title: data.title,
-            description: data.description,
-            deadline: data.deadline,
-            completed: data.completed
-        };
+        editor = data;
     }
 </script>
 
@@ -26,10 +22,6 @@
     <TodoContainer todoItems={data.todos.docs} editfunc={Edit} />
     <TodoCreator
         editfunc={Edit}
-        id={editor.id}
-        title={editor.title}
-        description={editor.description}
-        deadline={editor.deadline}
-        completed={editor.completed}
+        ItemData={editor}
     />
 </main>

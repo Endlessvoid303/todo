@@ -6,92 +6,99 @@
 	import TodoItem from "./todo-item.svelte";
 	import Textarea from "./textarea/textarea.svelte";
 	import Button from "./button/button.svelte";
-    import { createTodo } from "$lib/api/todo";
+    import { createTodo, updateTodo } from "$lib/api/todo";
     import { getCurrentUser } from "$lib/api/user";
     import { onMount } from 'svelte';
-    export let id = "";
-    export let title = "";
-    export let description = "";
-    export let deadline = "";
-    export let datebox: CalendarDate | undefined = undefined;
-    export let completed = false;
-    export let editfunc
+	import type { TodoTemplate } from "$lib/templates";
+	import type { Todo } from "$lib/payload-types";
+	import { isTodo } from "$lib/type-check";
+    let { editfunc, ItemData }: { editfunc: (data: any) => void, ItemData: TodoTemplate | Todo } = $props();
+    // export let id = "";
+    // export let title = "";
+    // export let description = "";
+    // export let deadline = "";
+    let datebox: CalendarDate | undefined = $state(undefined);
+    // export let completed = false;
     let userId: string | null = null;
     onMount(async () => {
         const user = await getCurrentUser();
         userId = user.id;
     });
-    let lastdatebox: CalendarDate | undefined = datebox;
-    let displaydate: string | undefined = datebox?.toString();
+    let lastdatebox: CalendarDate | undefined;
+    let displaydate: string | undefined;
     function updateDisplayDate(datebox: CalendarDate | undefined) {
         if (datebox !== undefined) {
             displaydate = datebox.toString();
-            deadline = new Date(datebox.year, datebox.month - 1, datebox.day+1).toISOString().split('T')[0];
+            ItemData.deadline = new Date(datebox.year, datebox.month - 1, datebox.day+1).toISOString().split('T')[0];
         }
         
     }
-    $: updateDisplayDate(datebox);
-    function parseDate(dateStr: string) {
-        if (dateStr === "" || dateStr === null || dateStr === undefined) {
+    $effect(() => {
+        if (datebox !== lastdatebox) {
+            lastdatebox = datebox;
+            updateDisplayDate(datebox);
+        }
+    });
+    function parseDate(deadline: string | undefined | null) {
+        if (deadline === "" || deadline === null || deadline === undefined) {
             datebox = undefined;
             return;
         }
-        const deadlineDate = new Date(dateStr);
+        const deadlineDate = new Date(deadline);
         datebox = new CalendarDate(
             deadlineDate.getFullYear(),
             deadlineDate.getMonth()+1,
             deadlineDate.getDate()
         );
     }
-    $: parseDate(deadline);
+    $effect(() => {
+        parseDate(ItemData.deadline);
+    });
     function Create() {
         console.log("Create");
-        createTodo({
-            title,
-            description,
-            completed,
-            deadline:new Date(deadline),
-            user: '68c12866666d22a2b5d57424'
-        }).then((res) => {
+        createTodo(ItemData).then((res) => {
             console.log(res);
         });
         Reset();
     }
     function Reset() {
-        id = "";
-        title = "";
-        description = "";
-        deadline = "";
+        ItemData = {
+            title: "",
+            description: "",
+            deadline: "",
+            completed: false,
+            user: '68c12866666d22a2b5d57424'
+        };
         datebox = undefined;
-        completed = false;
     }
     function Update() {
         console.log("Update");
+        if (!isTodo(ItemData)) {
+            console.error("ItemData is not a Todo");
+            return;
+        }
+        updateTodo(ItemData.id,ItemData).then((res) => {
+            console.log(res);
+        });
         Reset();
     }
 </script>
 <Card class="m-8 flex content-center items-center p-4">
     <TodoItem
-        id={id}
-        Title={title}
-        Description={description}
-        Deadline={deadline}
-        Completed={completed}
+        ItemData={ItemData}
         editfunc={editfunc}
-        display
     />
-    <Input bind:value={title} placeholder="Title" class="m-2" />
+    <Input bind:value={ItemData.title} placeholder="Title" class="m-2" />
     <div class="grid grid-cols-2 gap-8">
-        <Textarea bind:value={description} placeholder="Description" class="m-2" />
+        <Textarea bind:value={ItemData.description} placeholder="Description" class="m-2" />
         <Calendar bind:value={datebox} type="single" class="m-2" />
     </div>
     <div class="grid grid-cols-2">
-        {#if (id === "")}
+        {#if (!isTodo(ItemData))}
             <Button variant="default" class="m-2" onclick={Create}>Create</Button>
         {:else}
             <Button variant="default" class="m-2" onclick={Update}>Update</Button>
         {/if}
         <Button variant="destructive" class="m-2" onclick={Reset}>Reset</Button>
     </div>
-    <p>Deadline: {deadline}</p>
 </Card>

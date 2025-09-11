@@ -1,2 +1,2 @@
 import * as PayloadTypes from 'backend/src/payload-types';
-export { PayloadTypes };
+export type Todo = PayloadTypes.Todo;

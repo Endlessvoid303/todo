@@ -167,7 +167,7 @@ export interface Todo {
   title: string;
   description?: string | null;
   deadline?: string | null;
-  completed?: boolean | null;
+  completed: boolean;
   user: string | User;
   updatedAt: string;
   createdAt: string;
