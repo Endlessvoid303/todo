@@ -5,7 +5,7 @@
 	import type { Todo } from '$lib/payload-types';
 	import type { TodoTemplate } from '$lib/templates';
 	import { isTodo } from '$lib/type-check';
-	import { deleteTodo } from '$lib/api/todo';
+	import { deleteTodo, updateTodo } from '$lib/api/todo';
 	import { fade } from 'svelte/transition';
 	let { ItemData = $bindable(), editfunc, deletefunc }: { ItemData: Todo | TodoTemplate, editfunc: (data: Todo) => void | undefined, deletefunc: (id: string) => void | undefined } = $props();
     let deadlineDate: Date | undefined;
@@ -31,6 +31,14 @@
     }
 	$effect(() => {
 		parseDate(ItemData.deadline);
+	});
+
+	$effect(() => {
+		if (isTodo(ItemData)) {
+			updateTodo(ItemData.id, ItemData).catch((err) => {
+				console.error('Failed to update todo:', err);
+			});
+		}
 	});
 	
 	function getDeadlineColor(deadline: Date | undefined) {
